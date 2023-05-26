@@ -17,7 +17,7 @@ namespace MeetingPlanner.Model
                                        && !_isNotified
                                        && DateTime.Now > NotifyTime;
 
-        private bool _isNotified = false;
+        private bool _isNotified;
         
         public MeetingModel(string name, DateTime startDate,DateTime endDate,  bool isNeedNotify = false, 
             DateTime? notifyTime = null)

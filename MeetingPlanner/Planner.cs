@@ -10,7 +10,7 @@ namespace MeetingPlanner
     /// <summary>
     /// Планирощик встреч
     /// </summary>
-    public class Planner
+    public sealed class Planner : IDisposable
     {
         private readonly List<MeetingModel> _meetings = new List<MeetingModel>();
         private Timer _timer;
@@ -23,8 +23,8 @@ namespace MeetingPlanner
         
         public delegate void ReminderHandler(MeetingModel model);
         public event ReminderHandler Remind;
-        
-        protected virtual void OnRemind(MeetingModel model)
+
+        private void OnRemind(MeetingModel model)
         {
             model.SetIsNotified();
             Remind?.Invoke(model);
@@ -57,7 +57,7 @@ namespace MeetingPlanner
         public void AddMeeting(MeetingModel meeting)
         {
             if (meeting is null)
-                throw new ArgumentNullException("Переданная встреча ровняется null");
+                throw new ArgumentNullException(nameof(meeting),"Переданная встреча ровняется null");
             
             _meetings.Add(meeting);
         }
@@ -99,5 +99,10 @@ namespace MeetingPlanner
         }
         
         #endregion
+
+        public void Dispose()
+        {
+            _timer?.Dispose();
+        }
     }
 }

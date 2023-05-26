@@ -5,7 +5,7 @@ namespace MeetingPlanner
     {
         static void Main(string[] args)
         {
-            new Core();
+            var core = new Core();
         }
     }
 }

@@ -1,11 +1,9 @@
-﻿using System;
-
-namespace MeetingPlanner
+﻿namespace MeetingPlanner.Validators
 {
     /// <summary>
     /// Интерфейс валидатора
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">Валидируемый тип</typeparam>
     public interface IValidator<T> : IValidator
     {
         /// <summary>

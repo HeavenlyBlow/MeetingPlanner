@@ -14,7 +14,6 @@ namespace MeetingPlanner.Validators
         public string ErrorMessage { get; } = "На это время назначена другая встреча";
         private List<MeetingModel> _models;
         private DateTime? _otherDate;
-
         public FreeTimeValidator(List<MeetingModel> models, DateTime? otherDate = null)
         {
             _models = models;
@@ -28,7 +27,6 @@ namespace MeetingPlanner.Validators
                 return true;
 
             _otherDate = _otherDate ?? value;
-
             var startDate = _otherDate > value ? value : _otherDate;
             var endDate = _otherDate < value ? value : _otherDate;
             

@@ -34,16 +34,10 @@ namespace MeetingPlanner.Utils
                 }
 
                 var converter = TypeDescriptor.GetConverter(typeof(T));
+                var convertedValue = (T)converter.ConvertFromString(input);
+                isSuccess = true;
                 
-                if(converter != null)
-                {
-                    var answer = (T)converter.ConvertFromString(input);
-                    isSuccess = true;
-                    
-                    return answer;
-                }
-                
-                return default(T);
+                return convertedValue;
             }
             catch (FormatException)
             {

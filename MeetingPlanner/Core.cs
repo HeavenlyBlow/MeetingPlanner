@@ -23,7 +23,7 @@ namespace MeetingPlanner
 
         private void PlannerOnRemind(MeetingModel model)
         {
-            var message = ExportUtil.Serialize(model);
+            var message = Serializer.Serialize(model);
             Console.WriteLine($"\nНапоминание о встрече:\n{message}\n");
         }
 
@@ -34,16 +34,15 @@ namespace MeetingPlanner
         private void CreateMeeting()
         {
             ClearConsole();
-            var isSuccess = false;
             Console.WriteLine("Создание встречи\n");
             var meetings = _planner.GetMeetings();
-            var name = TryGetInput<string>("Введите название встречи", out isSuccess);
-
-            IValidator<DateTime> freeTimeValidator = new FreeTimeValidator(meetings);
-            IValidator<DateTime> onlyFutureTimeValidator = new OnlyFutureTimeValidator();
+            var name = TryGetInput<string>("Введите название встречи", out var isSuccess);
             
             if(!isSuccess) 
                 return;
+            
+            IValidator<DateTime> freeTimeValidator = new FreeTimeValidator(meetings);
+            IValidator<DateTime> onlyFutureTimeValidator = new OnlyFutureTimeValidator();
             
             var startDate = TryGetInput<DateTime>("Введите дату и время начала в формате dd.MM.yyyy HH:mm",
                 out isSuccess, validators: new []{onlyFutureTimeValidator, freeTimeValidator});
@@ -88,10 +87,9 @@ namespace MeetingPlanner
         private void UpdateMeeting()
         {
             var models = _planner.GetMeetings();
-            var meetingsStr = ExportUtil.Serialize(models);
-            var isSuccess = false;
+            var meetingsStr = Serializer.Serialize(models);
             var message = "Список встреч \n" + $"{meetingsStr}\n Введите номер встречи, которую хотите изменить";
-            var meetingNumber = TryGetInput<ushort>(message, out isSuccess);
+            var meetingNumber = TryGetInput<ushort>(message, out var isSuccess);
             
             if(!isSuccess)
                 return;
@@ -128,8 +126,6 @@ namespace MeetingPlanner
                     UpdateMeetingNotifyTime(model);
                     break;
             }
-            
-
         }
         private void UpdateMeetingName(MeetingModel model)
         {
@@ -171,7 +167,7 @@ namespace MeetingPlanner
         private void UpdateMeetingNotifying(MeetingModel model)
         {
             var isNeedChangeNotifying = TryGetInput<bool>((model.IsNeedNotify ? "Отключить напоминание" : "Включить напоминание" ) +
-                                                 "Введите true или false\n" +
+                                                 "\nВведите true или false\n" +
                                                  (!model.IsNeedNotify ? "Не забудьте задать время напоминания\n" : "" ), out var isSuccess);
             
             if(!isSuccess)
@@ -200,16 +196,14 @@ namespace MeetingPlanner
         private void DeleteMeeting()
         {
             var models = _planner.GetMeetings();
-            var meetingsStr = ExportUtil.Serialize(models);
-            var isSuccess = false;
+            var meetingsStr = Serializer.Serialize(models);
             var message = "Список встреч \n" + $"{meetingsStr}\n Введите номер встречи, которую хотите удалить";
-            var meetingNumber = TryGetInput<ushort>(message, out isSuccess);
+            var meetingNumber = TryGetInput<ushort>(message, out var isSuccess);
             
             if(!isSuccess)
                 return;
 
             var model = models[meetingNumber - 1];
-
             _planner.DeleteMeeting(model.Id);
         }
 
@@ -241,7 +235,7 @@ namespace MeetingPlanner
         {
             ClearConsole();
             var models = _planner.GetMeetings();
-            var meetingsStr = ExportUtil.Serialize(models);
+            var meetingsStr = Serializer.Serialize(models);
             var anyModels = models.Any();
             var message = "Список встреч \n" +
                           $"{meetingsStr}\n" +
@@ -273,7 +267,6 @@ namespace MeetingPlanner
             }
             
             ShowMenu();
-
         }
         private void ClearConsole()
         {
@@ -312,27 +305,25 @@ namespace MeetingPlanner
             if (!isSuccess)
                 IncorrectInput();
 
-            if (validators != null)
-            {
-                var errors = validators
-                    .Cast<IValidator<T>>()
-                    .Where(validator => !validator.Validate(converted))
-                    .Select(validator => validator.ErrorMessage)
-                    .ToList();
-
-                if (!errors.Any()) 
-                    return converted;
-                
-                var strErrors = string.Join(", ", errors);
-                isSuccess = false;
-                IncorrectInput(strErrors);
-            }
+            if (validators == null) 
+                return converted;
             
+            var errors = validators
+                .Cast<IValidator<T>>()
+                .Where(validator => !validator.Validate(converted))
+                .Select(validator => validator.ErrorMessage)
+                .ToList();
+
+            if (!errors.Any()) 
+                return converted;
+                
+            var strErrors = string.Join(", ", errors);
+            isSuccess = false;
+            IncorrectInput(strErrors);
+
             return converted;
         }
 
         #endregion
-        
-        
     }
 }
